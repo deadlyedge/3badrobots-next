@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -23,7 +17,6 @@ model Profile {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  member   Member[]
   channel  Channel[]
   messages Message[]
 }
@@ -37,29 +30,40 @@ model Channel {
   Profile   Profile @relation(fields: [profileId], references: [id])
 
   createdAt DateTime @default(now())
-  updatedAt DateTime @default(now())
-  Member    Member[]
+
+  robots Robot[]
 }
 
-model Member {
-  id        String     @id @default(cuid())
-  role      MemberRole
+model Robot {
+  id          String   @id @default(cuid())
+  name        String
+  description String
+  tempers     Temper[]
+  imageUrl    String?  @db.Text
+  exists      Boolean  @default(true)
+
+  role      RobotRole
   channelId String
-  channel   Channel    @relation(fields: [channelId], references: [id], onDelete: Cascade)
+  channel   Channel   @relation(fields: [channelId], references: [id], onDelete: Cascade)
 
   messages Message[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  profileId String?
-  Profile   Profile? @relation(fields: [profileId], references: [id])
-
   @@index([channelId])
 }
 
-enum MemberRole {
-  USER // The person in the chatroom
+model Temper {
+  id          String  @id @default(cuid())
+  name        String
+  description String
+  Robot       Robot?  @relation(fields: [robotId], references: [id])
+  robotId     String?
+}
+
+enum RobotRole {
+  // USER // The person in the chatroom
   BAD_MIND // Robot role 1
   BAD_HANDS // Robot role 2
   BAD_ASS // Robot role 3
@@ -70,8 +74,10 @@ model Message {
   text    String  @db.Text
   fileUrl String? @db.Text
 
-  memberId String
-  member   Member @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  robotId   String?
+  robot     Robot?   @relation(fields: [robotId], references: [id], onDelete: Cascade)
+  profileId String?
+  Profile   Profile? @relation(fields: [profileId], references: [id], onDelete: Cascade)
 
   channelId String
   channel   Channel @relation(fields: [channelId], references: [id], onDelete: Cascade)
@@ -79,9 +85,6 @@ model Message {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  profileId String?
-  Profile   Profile? @relation(fields: [profileId], references: [id])
-
   @@index([channelId])
-  @@index([memberId])
+  @@index([robotId])
 }
