@@ -1,15 +1,19 @@
+import { ClerkProvider } from "@clerk/nextjs"
+import { dark } from "@clerk/themes"
 import type { Metadata } from "next"
-import { Geist, Geist_Mono } from "next/font/google"
+import { Lexend, Source_Code_Pro } from "next/font/google"
 import "./globals.css"
+import { cn } from "@/lib/utils"
+import { ThemeProvider } from "@/components/providers/themeProvider"
 
-const geistSans = Geist({
-	variable: "--font-geist-sans",
+const lexend = Lexend({
 	subsets: ["latin"],
+	weight: ["300", "700"],
 })
-
-const geistMono = Geist_Mono({
-	variable: "--font-geist-mono",
+const sourceCode = Source_Code_Pro({
 	subsets: ["latin"],
+	weight: ["300", "600"],
+	variable: "--font-source-code",
 })
 
 export const metadata: Metadata = {
@@ -23,11 +27,25 @@ export default function RootLayout({
 	children: React.ReactNode
 }>) {
 	return (
-		<html lang="en">
-			<body
-				className={`${geistSans.variable} ${geistMono.variable} dark antialiased h-full`}>
-				{children}
-			</body>
-		</html>
+		<ClerkProvider
+			dynamic
+			appearance={{ baseTheme: dark }}
+			signInUrl="/sign-in"
+			signUpUrl="/sign-up"
+			signInFallbackRedirectUrl="/setup"
+			signUpFallbackRedirectUrl="/"
+			afterSignOutUrl="/">
+			<html lang="en" suppressHydrationWarning>
+				<body className={cn(lexend.className, "antialiased h-full")}>
+					<ThemeProvider
+						attribute={"class"}
+						defaultTheme={"dark"}
+						enableSystem
+						storageKey="3badrobots-theme">
+						{children}
+					</ThemeProvider>
+				</body>
+			</html>
+		</ClerkProvider>
 	)
 }

@@ -14,24 +14,25 @@ model Profile {
   imageUrl String @db.Text
   email    String @unique @db.Text
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  robotsDied Int @default(0)
 
   channel  Channel[]
   messages Message[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Channel {
-  id       String    @id @default(cuid())
-  userId   String    @unique
+  id String @id @default(cuid())
+
   messages Message[]
+  robots   Robot[]
 
   profileId String
   Profile   Profile @relation(fields: [profileId], references: [id])
 
   createdAt DateTime @default(now())
-
-  robots Robot[]
 }
 
 model Robot {
@@ -63,7 +64,6 @@ model Temper {
 }
 
 enum RobotRole {
-  // USER // The person in the chatroom
   BAD_MIND // Robot role 1
   BAD_HANDS // Robot role 2
   BAD_ASS // Robot role 3
@@ -73,6 +73,8 @@ model Message {
   id      String  @id @default(cuid())
   text    String  @db.Text
   fileUrl String? @db.Text
+
+  died Boolean @default(false)
 
   robotId   String?
   robot     Robot?   @relation(fields: [robotId], references: [id], onDelete: Cascade)
