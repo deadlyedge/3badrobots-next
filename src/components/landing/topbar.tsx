@@ -14,7 +14,7 @@ export const LandingTopbar = ({
 	gotoChannelClick: string
 }) => {
 	return (
-		<nav className="sticky top-0 z-20 bg-black/50 text-xs md:text-base flex items-center justify-between w-full h-12 p-2">
+		<nav className="sticky top-0 z-20 bg-black/50 text-xs md:text-base flex items-center justify-between w-full h-12 p-2 backdrop-blur">
 			<div className="flex">
 				<Image
 					src="/logo.svg"
