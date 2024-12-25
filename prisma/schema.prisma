@@ -1,0 +1,87 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Profile {
+  id       String @id @default(cuid())
+  userId   String @unique
+  name     String
+  imageUrl String @db.Text
+  email    String @unique @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  member   Member[]
+  channel  Channel[]
+  messages Message[]
+}
+
+model Channel {
+  id       String    @id @default(cuid())
+  userId   String    @unique
+  messages Message[]
+
+  profileId String
+  Profile   Profile @relation(fields: [profileId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+  Member    Member[]
+}
+
+model Member {
+  id        String     @id @default(cuid())
+  role      MemberRole
+  channelId String
+  channel   Channel    @relation(fields: [channelId], references: [id], onDelete: Cascade)
+
+  messages Message[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  profileId String?
+  Profile   Profile? @relation(fields: [profileId], references: [id])
+
+  @@index([channelId])
+}
+
+enum MemberRole {
+  USER // The person in the chatroom
+  BAD_MIND // Robot role 1
+  BAD_HANDS // Robot role 2
+  BAD_ASS // Robot role 3
+}
+
+model Message {
+  id      String  @id @default(cuid())
+  text    String  @db.Text
+  fileUrl String? @db.Text
+
+  memberId String
+  member   Member @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  channelId String
+  channel   Channel @relation(fields: [channelId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  profileId String?
+  Profile   Profile? @relation(fields: [profileId], references: [id])
+
+  @@index([channelId])
+  @@index([memberId])
+}
